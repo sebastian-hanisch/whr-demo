@@ -1,5 +1,7 @@
 # WHR und TrueSkill Through Time: die Vergangenheit neu schätzen – Streamlit-Demo
 
+**[→ Demo live ausprobieren](https://sebastianhanisch-whr-demo.streamlit.app/)**
+
 Neuntes Stück der **Ranking-Linie** (Konzepte-Demo), Nachfolger von `glicko-trueskill-demo`: Elo, Glicko und TrueSkill sind **Filter**, sie schreiben die Wertung fort und
 korrigieren die Vergangenheit nie. **Whole-History Rating** (WHR, Maximum a posteriori, logistisch) und **TrueSkill Through Time** (TTT, Erwartungsabgleich, Probit) sind **Glätter**:
 Sie schätzen jeden Zeitpunkt aus allen Partien, auch den späteren. Gemessen wird, was der Rückblick bringt, wie er von der Vorschau abhängt, was die Annahme über die Drift kostet
@@ -155,4 +157,4 @@ Gebaut mit Streamlit, Plotly, numpy, pandas und fpdf2.
 
 ---
 
-Diese Demo ist Teil des Portfolios von [Sebastian Hanisch](https://sebastianhanisch.net) – Operations Research und Machine Learning ([Über mich](https://sebastianhanisch.net/ueber-mich.html)). Mehr zu den Demos: [Interaktive Demos](https://sebastianhanisch.net/demos.html).
+Diese Demo ist Teil des Portfolios von [Sebastian Hanisch](https://sebastianhanisch.net) – Operations Research und Machine Learning ([Über mich](https://sebastianhanisch.net/ueber-mich.html)). Mehr zur Reihe: [Ranking: von der Siegtabelle bis Learning to Rank](https://sebastianhanisch.net/konzepte-ranking.html).
