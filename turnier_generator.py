@@ -4,7 +4,8 @@ Version 1 (2026-10-11). Nur numpy, kein Streamlit. Änderungen an diesem Modul b
 Reihenfolge des Zufallsverbrauchs nur ändern, wenn alle Kopien nachgezogen werden (tools/portfolio_audit.py, SHARED_GROUPS).
 
 Modell: n Teilnehmer mit latenter Stärke s_i (Index aufsteigend = stärker). Eine Partie i gegen j gewinnt i mit
-P_ij = clip(sigmoid(s_i - s_j) + K_ij, 0,02; 0,98); K_ij ist eine zyklische Störung über drei Spielstile (Stil a schlägt Stil a-1).
+P_ij = sigmoid(s_i - s_j); mit der zyklischen Störung K_ij über drei Spielstile (Stil a schlägt Stil a-1, nur bei gesetztem K) P_ij = clip(sigmoid(s_i - s_j) + K_ij, 0,02; 0,98).
+Ohne Störung bleibt P unbegrenzt (bei großem Stärkeabstand über 0,98).
 Beobachtet werden nur Ausgänge (Sieg/Niederlage). Zwei Zielgrößen: die Generator-Stärke s und die erwartete Siegquote
 e_i = Summe_j P_ij / (n - 1) gegen ein gleichverteiltes Feld.
 
