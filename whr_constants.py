@@ -80,7 +80,7 @@ PRESETS = {
 }
 PRESET_HELP = {
     "Eingespieltes Feld": "8 Spieler, alle spielen jede Runde, die Stärken wandern mit Schritt 0,06: Der Glätter liegt rund ein Viertel unter dem Fehler der Filter.",
-    "Ungleiche Aktivität": "Die Hälfte der Spieler spielt nur mit Wahrscheinlichkeit 0,2 je Runde: Wer selten spielt, wird aus den späteren Partien mitgeschätzt; hier ist der Gewinn am größten.",
+    "Ungleiche Aktivität": "Die Hälfte der Spieler spielt nur mit Wahrscheinlichkeit 0,2 je Runde: Wer selten spielt, wird aus den späteren Partien mitgeschätzt; hier bleibt der Gewinn etwa so groß wie bei gleicher Aktivität.",
     "Lange Pause": "Spieler 0 pausiert 60 Runden bei starker Drift (0,12): Der Glätter interpoliert zwischen vor und nach der Pause, der Filter friert ein.",
-    "Neuling mit Abstand 2": "Ein Neuling kommt in Runde 60, 2 Einheiten über dem Feld: Im Rückblick hilft nur ein passender Prior; ohne ihn läuft die Schätzung weg.",
+    "Neuling mit Abstand 2": "Ein Neuling kommt in Runde 60, 2 Einheiten über dem Feld: Am Ende der Aufzeichnung hilft im Rückblick nur ein passender Prior; ohne ihn läuft die Schätzung weg.",
 }

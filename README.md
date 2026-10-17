@@ -5,18 +5,17 @@
 Neuntes Stück der **Ranking-Linie** (Konzepte-Demo), Nachfolger von `glicko-trueskill-demo`: Elo, Glicko und TrueSkill sind **Filter**, sie schreiben die Wertung fort und
 korrigieren die Vergangenheit nie. **Whole-History Rating** (WHR, Maximum a posteriori, logistisch) und **TrueSkill Through Time** (TTT, Erwartungsabgleich, Probit) sind **Glätter**:
 Sie schätzen jeden Zeitpunkt aus allen Partien, auch den späteren. Gemessen wird, was der Rückblick bringt, wie er von der Vorschau abhängt, was die Annahme über die Drift kostet
-und wo er am meisten hilft. Das Vehikel ist das neutrale, simulierte Turnier der Wurzel (Anfangsstärken aus dem Generator Version 1, wortgleich; danach eine Irrfahrt der Stärken,
+und wo er hilft. Das Vehikel ist das neutrale, simulierte Turnier der Wurzel (Anfangsstärken aus dem Generator Version 1, wortgleich; danach eine Irrfahrt der Stärken,
 dieselben Partien für dieselben Seeds wie im Vorgängerstück); alles ist simuliert, es gibt keinen echten Datensatz.
 
 ## Kernfrage
 
-Was bringt der Blick in die Zukunft? **Im Rückblick rund ein Viertel:** Verfolgungsfehler **0,184 / 0,242 / 0,359** gegen 0,250 / 0,329 / 0,481 des besten Filters bei Drift
-σ = 0,03 / 0,06 / 0,12 (26 / 26 / 25 % weniger). **Der Gewinn hängt an der Vorschau:** mit 0 Runden ist der Glätter der Filter (0,328 gegen Glicko 0,329), mit 5 Runden holt er
-16 % des Gewinns, mit 20 Runden 63 %, mit der ganzen Geschichte alles (0,224); am Rand der Zeit ist er kaum besser (letztes Zehntel 0,290 gegen 0,312). **Die Annahme über die Drift
-ist seine Schwachstelle:** w = σ/2 kostet 8 %, w = 2σ 11 %, ein statisches Modell ist bei starker Drift mit 0,565 schlechter als der beste Filter (0,481). Am meisten hilft er bei
-**ungleicher Aktivität** (0,345 gegen 0,474 bei Elo und 0,445 bei Glicko) und in der **Pause**, die er interpoliert (Mitte der Pause 0,627 gegen 0,850 bei σ = 0,12). Dem **Neuling**
-bringt der Rückblick **nichts, was nicht auch der Prior bringt** (0,363 mit Prior 1,0, ohne Prior 0,454, Glicko am Ende 0,349). Und **WHR und TTT sind dasselbe Verfahren in zwei
-Gewändern:** Fehlerdifferenz −0,001 ± 0,009, die Schätzungen liegen im Mittel 0,036 θ-Einheiten (6 Punkte) auseinander.
+Was bringt der Blick in die Zukunft? **Im Rückblick rund ein Viertel** (im engen Feld, wenn dem Glätter die Drift und ein passender Prior bekannt sind): Verfolgungsfehler **0,184 / 0,242 / 0,359** gegen 0,250 / 0,329 / 0,481 des besten Filters bei Drift
+σ = 0,03 / 0,06 / 0,12 (26 / 26 / 25 % weniger). **Der Gewinn hängt an der Vorschau:** mit 0 Runden ist der Glätter ein Filter und hier so genau wie Glicko (0,328 gegen 0,329), mit 5 Runden holt er bei Drift 0,06
+16 % des Gewinns (bei Drift 0,12 29 %), mit 20 Runden 63 %, mit der ganzen Geschichte alles (0,224); am Rand der Zeit ist der Vorsprung klein (letztes Zehntel 0,290 gegen 0,312, 7 % statt 32 % in der Mitte). **Die Annahme über die Drift
+kostet Genauigkeit:** w = σ/2 kostet 8 %, w = 2σ 11 % bei Drift 0,06 (bei 0,12: 16,5 % und 13,1 %); der Vorsprung vor dem besten Filter bleibt, nur ein statisches Modell fällt bei starker Drift mit 0,565 hinter ihn zurück (Filter 0,481). Bei
+**ungleicher Aktivität** bleibt der Gewinn mit 23 % etwa so groß wie bei gleicher Aktivität (0,345 gegen 0,474 bei Elo und 0,445 bei Glicko), in der **Pause**, die er interpoliert, ist er mit 26 % ähnlich groß (Mitte der Pause 0,627 gegen 0,850 bei σ = 0,12). Dem **Neuling**
+bringt der Rückblick am Ende der Aufzeichnung **nichts, was nicht auch der Prior bringt** (0,363 mit Prior 1,0, ohne Prior 0,454, Glicko am Ende 0,349); für die ersten Partien des Neulings dagegen viel (eigener Lauf, Abstand 2, Drift 0: 0,36 gegen 0,5 bis 1,1 bei Glicko). Und **WHR und TTT sind hier praktisch gleich genau:** Fehlerdifferenz −0,001 ± 0,009 (Streuung über die Läufe), die Schätzungen liegen im Mittel 0,036 θ-Einheiten (6 Punkte) auseinander.
 
 ## Modell
 
@@ -26,7 +25,7 @@ Gewändern:** Fehlerdifferenz −0,001 ± 0,009, die Schätzungen liegen im Mitt
   blocktridiagonal (ein n×n-Block je Runde, außerhalb der Diagonale −1/w²), das System wird blockweise in O(T n³) gelöst; ein kleiner Ridge fixiert das Niveau.
 - **TTT:** Gauß-Nachrichten auf der Kette je Spieler, Probit-Faktor je Partie (β = 1,702/√2 in θ-Einheiten, damit er zum logistischen Modell passt); die Nachricht jeder Partie folgt aus
   den Cavity-Verteilungen der beiden Spieler per Momentenabgleich (die TrueSkill-Formeln v und w); Vorwärts- und Rückwärtsdurchläufe wechseln mit der Aktualisierung der Partien bis zur
-  Konvergenz (6 bis 15 Durchläufe bei vollem Feld, rund 40 bei ungleicher Aktivität und Neuling).
+  Konvergenz (8 bis 10 Durchläufe bei vollem Feld, bei ungleicher Aktivität und beim Neuling im Mittel rund 34 bzw. 37, bis 60).
 - **Vorschau L:** Die Schätzung zum Zeitpunkt t aus den Partien der Runden 0 … t + L; L = 0 ist der Filter, „alle“ die ganze Geschichte.
 - **Filter:** Elo (festes K) und Glicko (Glicko-1, feste Volatilität, Anfangsunsicherheit 0,7 θ-Einheiten), unverändert aus dem Vorgängerstück kopiert.
 - **Partien:** Anfangsstärken `make_strengths` (n ≤ 12, Abstand δ); Irrfahrt mit Schritt σ je Runde; in jeder Runde spielen die aktiven Spieler in zufälliger Paarung. **Szenarien:**
@@ -41,7 +40,7 @@ Gewändern:** Fehlerdifferenz −0,001 ± 0,009, die Schätzungen liegen im Mitt
   (Neuling 100, Pause 125), unabhängig vom Regler. Den **Filtern** wird je Zelle der beste Parameter eines festen Rasters gegeben (K, c); dem **Glätter** wird die Drift geschenkt
   (w = σ, Prior 1,0). Das ist für den Glätter optimistisch; Experiment 4 misst die falsche Annahme.
 - **Der Glätter ist keine Vorhersage:** Sein Fehler zum Zeitpunkt t verwendet Partien nach t. Die Demo zeigt deshalb die Vorschau L als Regler und als Experiment; bei L = 0 ist er
-  der Filter.
+  ein Filter (hier so genau wie Glicko).
 - **Zufall:** `turnier_generator.py` mit SplitMix64-Strom (wortgleich mit den Repos der Linie).
 
 ## Befunde (gemessen, keine Behauptungen)
@@ -60,7 +59,7 @@ Alle Zahlen: 60 feste Läufe, 8 Spieler, Abstand 0,3, 150 Runden, Prior 1,0, wen
 | Neuling (Abstand 2, σ = 0), mittlerer Betrag des Fehlers | Glätter ohne Prior 0,454; Prior 2,0 0,390; **Prior 1,0 0,363**; Prior 0,7 0,467; Glicko nach 20 Partien 0,376, **am Ende 0,349**; Elo mit Anlauf-K nach 20 Partien 0,716. | `test_the_newcomer_gains_little_and_only_with_a_fitting_prior` |
 | Pause (60 Runden), Mitte der Pause, σ = 0,06 / 0,12 | **WHR 0,421 / 0,627** gegen eingefrorenes Elo 0,586 / 0,850 und Glicko 0,555 / 0,854. | `test_the_smoother_interpolates_a_pause` |
 | Nach der Rückkehr (1 / 5 / 20 Partien), σ = 0,12 | WHR 0,417 / 0,400 / 0,435; Elo 0,802 / 0,659 / 0,463; der Filter holt nach 20 Partien auf. | `test_the_smoother_interpolates_a_pause` |
-| WHR gegen TTT (σ = 0,06, w = γ = σ) | Fehlerdifferenz −0,001 ± 0,009; zentrierte Schätzungen im Mittel 0,036 auseinander; Kendall τ der Endwertungen 0,99; 9 Durchläufe. | `test_whr_and_ttt_are_the_same_method_in_two_garments` |
+| WHR gegen TTT (σ = 0,06, w = γ = σ) | Fehlerdifferenz −0,001 ± 0,009 (Streuung über die Läufe); zentrierte Schätzungen im Mittel 0,036 auseinander; Kendall τ der Endwertungen 0,99; 9 Durchläufe. | `test_whr_and_ttt_are_the_same_method_in_two_garments` |
 
 ## Befunde und Korrekturen gegenüber dem Plan
 
@@ -69,10 +68,9 @@ Alle Zahlen: 60 feste Läufe, 8 Spieler, Abstand 0,3, 150 Runden, Prior 1,0, wen
 
 - **Die Vorab-Zahlen verschieben sich um wenige Tausendstel** (WHR 0,190 / 0,244 / 0,356 gegen **0,184 / 0,242 / 0,359**; Gewinn 29 / 26 / 26 % gegen **26 / 26 / 25 %**): 60 statt 30
   Läufe, Prior 1,0 im Glätter, Glicko mit dem informierten Prior 0,7 statt 350 Punkten (0,250 / 0,329 / 0,481 statt 0,277 / 0,341 / 0,481).
-- **Der Neuling im Rückblick bringt nichts:** Der Plan hatte „nur mit passendem Prior etwas“; mit der Vergleichsgröße am Ende (Glicko nach 40 Partien: 0,349) ist selbst der beste
+- **Der Rückblick bringt dem Neuling am Ende der Aufzeichnung nichts:** Der Plan hatte „nur mit passendem Prior etwas“; mit der Vergleichsgröße am Ende (Glicko nach 40 Partien: 0,349) ist selbst der beste
   Prior nicht besser als der Filter (0,363). Ohne Prior läuft das Maximum Likelihood weg (0,454, mit Ausreißern).
-- **Blockweise statt dicht:** Der Plan sah ein dichtes Newton-Verfahren vor (n·T im Quadrat). Die Hesse-Matrix ist blocktridiagonal; der Blocklöser rechnet 20 bis 30 ms je Anpassung bis
-  n = 12 und 200 Runden und ist im Orakel gegen die dichte Lösung (identisch auf 1e-8) und gegen einen unabhängigen Maximierer geprüft. Das Kostenargument entfällt für die Demo;
+- **Blockweise statt dicht:** Der Plan sah ein dichtes Newton-Verfahren vor (n·T im Quadrat). Die Hesse-Matrix ist blocktridiagonal; der Blocklöser rechnet auf dem Entwicklungsrechner 27 ms (n = 8, 150 Runden) bis 44 ms (n = 12, 200 Runden) je Anpassung (rechnerabhängig) und ist im Orakel gegen die dichte Lösung (identisch auf 1e-8) und gegen einen unabhängigen Maximierer geprüft. Das Kostenargument entfällt für die Demo;
   das Verfahren bleibt auf kleine Felder begrenzt, weil die Aufgabe selbst (alle Spieler, alle Runden) nicht skaliert wird.
 - **TTT-Konvergenz:** Das Niveau der EP-Schätzung wandert langsam (0,002 je Durchlauf); geprüft wird deshalb die um das Feldmittel zentrierte Schätzung, die nach rund 10 Durchläufen
   steht.
@@ -91,7 +89,9 @@ Alle Zahlen: 60 feste Läufe, 8 Spieler, Abstand 0,3, 150 Runden, Prior 1,0, wen
 
 - **Dem Glätter wird die Drift geschenkt** (w = σ); in der Praxis ist w eine Annahme, und Experiment 4 zeigt, was sie kostet. Sie aus den Daten zu schätzen, ist hier nicht gemessen.
 - **Der Glätter ist keine Vorhersage** und im Betrieb nur zeitversetzt verfügbar (Experiment 2).
-- **Der Rand der Zeit gewinnt wenig:** Die jüngsten Wertungen bleiben die unsichersten.
+- **Der Rand der Zeit gewinnt weniger:** Die jüngsten Wertungen bleiben die unsichersten.
+- **Der Gewinn von rund einem Viertel gilt im engen Feld:** Bei Abstand 1,0 (Drift 0,06, gleiche Aktivität) sind es mit Prior 1,0 nur 6 % (WHR 0,429 gegen Filter 0,457), mit Prior 2,0 28 % (0,330);
+  eigene Läufe mit 30 Seeds, nicht Teil der Testsuite.
 - **Der Prior ist gewählt, nicht begründet:** Standard 1,0, Glicko arbeitet mit 2,0; der Neuling hängt an ihm.
 - **n ≤ 12, 200 Runden, nur Sieg und Niederlage,** kein Remis, keine Teams, Irrfahrt ohne Sprünge und ohne Rückkehr zum Mittel; ein Generator, 60 Läufe je Zelle; Unterschiede unter
   etwa 0,005 sind Rauschen.
@@ -112,7 +112,7 @@ Alle Zahlen: 60 feste Läufe, 8 Spieler, Abstand 0,3, 150 Runden, Prior 1,0, wen
 
 ## Tests
 
-144 Tests, rund drei Minuten: Einheiten gegen Handwerte (`test_smoother.py`: Blocklöser, Gradient gegen finite Differenzen, Newton-Verfahren, Vorschau, Probit-Aktualisierung,
+415 Tests, rund sieben Minuten (auf dem Entwicklungsrechner gemessen): Einheiten gegen Handwerte (`test_smoother.py`: Blocklöser, Gradient gegen finite Differenzen, Newton-Verfahren, Vorschau, Probit-Aktualisierung,
 TTT-Durchlauf), Szenario (`test_scenario.py`), Partien und Filter (`test_drift.py`, `test_elo.py`, `test_glicko.py`, Kopien aus dem Vorgängerstück), Generator
 (`test_generator.py`, wortgleich), **Orakel** (`test_oracle_whr.py`: WHR gegen den Maximierer von scipy; jeder der ersten Newton-Schritte gegen eine unabhängige dichte Rechnung in
 Python-Schleifen; die Grenzfälle w → 0 (statisches Bradley-Terry) und w → ∞; die abgeschnittene Geschichte gegen die Schätzung auf den abgeschnittenen Partien; die

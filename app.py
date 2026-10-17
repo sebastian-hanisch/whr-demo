@@ -3,7 +3,7 @@ Sebastian Hanisch - Operations Research und Machine Learning
 
 Neuntes Stück der Ranking-Linie: Elo, Glicko und TrueSkill schreiben die Wertung fort und korrigieren die Vergangenheit nie. Whole-History Rating und TrueSkill Through Time schätzen
 jeden Zeitpunkt aus allen Partien, auch den späteren. Sechs Experimente messen, was der Rückblick bringt (Genauigkeit, Vorschau, Lage in der Zeit), was er kostet (die Annahme über die
-Drift) und wo er am meisten hilft (ungleiche Aktivität, Pause). Aufbau und Regeln: DEMO-PLAYBOOK.md (§2).
+Drift) und wo er hilft (ungleiche Aktivität, Pause). Aufbau und Regeln: DEMO-PLAYBOOK.md (§2).
 
 Lauffähig mit: streamlit run app.py
 """
@@ -102,7 +102,7 @@ st.markdown(
 Elo, Glicko und TrueSkill sind **Filter**: Sie schreiben die Wertung nach jeder Partie fort und **korrigieren die Vergangenheit nie**. Diese Demo ist das **neunte Stück der
 Ranking-Linie** und fragt, was ein **Glätter** bringt, der jeden Zeitpunkt aus **allen** Partien schätzt, auch den späteren: **Whole-History Rating** (WHR, Maximum a posteriori) und
 **TrueSkill Through Time** (TTT, Erwartungsabgleich). Gemessen wird, was der **Rückblick** an Genauigkeit bringt, wie er von der **Vorschau** abhängt, was die **Annahme über die
-Drift** kostet und wo er am meisten hilft (**ungleiche Aktivität**, **Pause**).
+Drift** kostet und wo er hilft (**ungleiche Aktivität**, **Pause**).
 
 Weiter unten: sechs **🔬 Experimente** mit Verdikt, **🚧 Wo die Annahmen enden** und der Expander **📐 Mathematische Formulierung**.
 """
@@ -113,11 +113,11 @@ with st.expander("Filter und Glätter", expanded=True):
         """
 1. **Der Filter sieht die Vergangenheit:** Die Wertung nach Runde t hängt nur von den Partien bis t ab. Eine spätere Partie ändert nichts an ihr.
 2. **Der Glätter sieht alles:** Die Stärke jedes Spielers in jeder Runde wird aus allen Partien geschätzt, gekoppelt durch eine Annahme über die Drift: Von Runde zu Runde
-   wandert sie um höchstens etwa w (ein Wiener-Prozess). Eine Partie in Runde 100 sagt damit auch etwas über Runde 90.
-3. **Die Vorschau entscheidet:** Mit 0 Runden Vorschau ist der Glätter dasselbe wie der Filter, mit allen späteren Runden ist er am genauesten. Seine Genauigkeit ist ein
+   wandert sie typisch um w (ein Wiener-Prozess, Schritte N(0, w²)). Eine Partie in Runde 100 sagt damit auch etwas über Runde 90.
+3. **Die Vorschau entscheidet:** Mit 0 Runden Vorschau ist der Glätter ein Filter und hier so genau wie Glicko, mit allen späteren Runden ist er am genauesten. Seine Genauigkeit ist ein
    **Fehler im Rückblick**, keine Vorhersage.
 4. **Zwei Gewänder:** WHR rechnet logistisch (Bradley-Terry) und sucht das wahrscheinlichste Gesamtbild; TTT rechnet mit Probit und gleicht Gauß-Nachrichten vorwärts und rückwärts ab.
-   Beide kommen auf dieselbe Schätzung (ein paar Punkte Unterschied), so wie Glicko und TrueSkill im Vorgängerstück.
+   Beide kommen auf nahezu dieselbe Schätzung (ein paar Punkte Unterschied), so wie Glicko und TrueSkill im Vorgängerstück.
         """
     )
 
@@ -210,7 +210,7 @@ m4.metric("Verfolgungsfehler: TTT", ev.de(a.error["TTT"], 3), delta=f"{ev.de(a.w
           help=f"Erwartungsabgleich mit Probit; {a.ttt_sweeps} Vorwärts-/Rückwärtsdurchläufe bis zur Konvergenz.")
 if settings.lag != C.LAG_ALL:
     st.metric(f"Fehler des Glätters mit {lag_label(settings.lag)} Vorschau", ev.de(a.lag_error, 3),
-              help="Mittel über acht Zeitpunkte; nur die Partien bis t + Vorschau stehen zur Verfügung. Bei 0 ist der Glätter der Filter.")
+              help="Mittel über acht Zeitpunkte; nur die Partien bis t + Vorschau stehen zur Verfügung. Bei 0 ist der Glätter ein Filter.")
 
 st.session_state.setdefault("player_pick", 0)
 st.session_state["player_pick"] = min(int(st.session_state["player_pick"]), settings.n - 1)
@@ -294,8 +294,8 @@ st.markdown(
     """
 | Annahme | Was passiert, wenn sie verletzt ist | Wer setzt an |
 |---|---|---|
-| **Die Drift ist bekannt** | Dem Glätter ist w hier geschenkt. Zu klein oder zu groß kostet Genauigkeit, ein statisches Modell ist bei starker Drift schlechter als jeder Filter (Experiment 4). | – |
-| **Rückblick ist gefragt** | Der Fehler des Glätters verwendet spätere Partien; für die Vorhersage der nächsten Partie gilt nur die Vorschau 0, und dort ist er der Filter (Experiment 2). | – |
+| **Die Drift ist bekannt** | Dem Glätter ist w hier geschenkt. Zu klein oder zu groß kostet Genauigkeit, ein statisches Modell ist bei starker Drift schlechter als Elo und Glicko mit gutem Parameter (Experiment 4). | – |
+| **Rückblick ist gefragt** | Der Fehler des Glätters verwendet spätere Partien; für die Vorhersage der nächsten Partie gilt nur die Vorschau 0, und dort ist er ein Filter (Experiment 2). | – |
 | **Der Rand zählt** | Am Ende der Zeit gibt es keine späteren Partien: Der Gewinn ist dort klein (Experiment 3). | – |
 | **Der Prior ist passend** | Ohne Prior läuft die Schätzung eines Neulings weg, ein zu enger bremst ihn (Experiment 5); die Voreinstellung 1,0 ist gewählt, nicht begründet. | – |
 | **Kleine Felder, wenige Runden** | Dichtes Rechnen mit n ≤ 12 und 200 Runden; für große Felder rechnet das Verfahren von Coulom blockweise und dünn. | – |

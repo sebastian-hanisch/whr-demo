@@ -431,7 +431,7 @@ def verdict_lag(rows):
     lags = r["lags"]
     total = r["glicko"] - lags[C.LAG_ALL]
     share = lambda L: (r["glicko"] - lags[L]) / total      # noqa: E731
-    return "info", (f"Mit **0 Runden Vorschau ist der Glätter der Filter** ({de(lags[0], 3)} gegen Glicko {de(r['glicko'], 3)} bei σ = {de(r['sigma'])}). 5 Runden holen {pct(share(5))} % des "
+    return "info", (f"Mit **0 Runden Vorschau ist der Glätter ein Filter und hier so genau wie Glicko** ({de(lags[0], 3)} gegen Glicko {de(r['glicko'], 3)} bei σ = {de(r['sigma'])}). 5 Runden holen {pct(share(5))} % des "
                     f"Gewinns, 20 Runden {pct(share(20))} %, die ganze Geschichte ({de(lags[C.LAG_ALL], 3)}) 100 %. Wer in Echtzeit bewerten muss, gewinnt von der Vorschau wenig; der "
                     "Glätter ist ein Werkzeug der nachträglichen Auswertung.")
 
@@ -439,20 +439,20 @@ def verdict_lag(rows):
 def verdict_position(res):
     w, g = res["WHR"], res["Glicko"]
     return "info", (f"Der Gewinn hängt an der Lage: im ersten Zehntel {de(w[0], 3)} gegen {de(g[0], 3)} (Kaltstart der Filter), in der Mitte {de(w[len(w) // 2], 3)} gegen "
-                    f"{de(g[len(g) // 2], 3)}, **im letzten Zehntel nur {de(w[-1], 3)} gegen {de(g[-1], 3)}:** Am Rand der Zeit gibt es keine spätere Partie, aus der der Glätter lernen könnte.")
+                    f"{de(g[len(g) // 2], 3)}, **im letzten Zehntel nur {de(w[-1], 3)} gegen {de(g[-1], 3)}:** Am Rand der Zeit gibt es kaum spätere Partien, aus denen der Glätter lernen könnte; der Vorsprung ist dort klein.")
 
 
 def verdict_wrong_w(rows):
     r = {x["sigma"]: x for x in rows}
     hi, mid = r[C.SIGMA_SWEEP[-1]], r[C.POS_SIGMA]
     cost = lambda x, k: x[k] / x["w1.0"] - 1.0      # noqa: E731
-    return "warning", (f"Die Drift-Annahme ist die Schwachstelle: bei σ = {de(mid['sigma'])} kostet w = σ/2 {pct(cost(mid, 'w0.5'))} % und w = 2σ {pct(cost(mid, 'w2.0'))} % Fehler. "
+    return "warning", (f"Die Drift-Annahme kostet Genauigkeit: bei σ = {de(mid['sigma'])} kostet w = σ/2 {pct(cost(mid, 'w0.5'))} % und w = 2σ {pct(cost(mid, 'w2.0'))} % Fehler. "
                        f"**Ein statisches Modell (w = 0) ist bei σ = {de(hi['sigma'])} mit {de(hi['static'], 3)} schlechter als der beste Filter ({de(hi['filter'], 3)})** und kein "
                        "Glätter mehr, sondern Bradley-Terry über alle Partien.")
 
 
 def verdict_activity(res):
-    return "info", (f"Bei ungleicher Aktivität (die Hälfte spielt mit p = {de(C.P_RARE_EXP, 1)}) ist der Gewinn am größten: gesamt {de(res['whr_total'], 3)} gegen Elo "
+    return "info", (f"Bei ungleicher Aktivität (die Hälfte spielt mit p = {de(C.P_RARE_EXP, 1)}) bleibt der Gewinn etwa so groß wie bei gleicher Aktivität: gesamt {de(res['whr_total'], 3)} gegen Elo "
                     f"{de(res['elo_total'], 3)} und Glicko {de(res['glicko_total'], 3)}; die selten spielenden {de(res['whr_rare'], 3)} gegen {de(res['elo_rare'], 3)} bzw. "
                     f"{de(res['glicko_rare'], 3)}. Wer selten spielt, wird aus den späteren Partien der anderen mitgeschätzt.")
 
@@ -464,7 +464,7 @@ def verdict_newcomer(rows):
     g20 = next(x["error"] for x in rows if x["label"].startswith("Glicko, nach 20"))
     g40 = next(x["error"] for x in rows if x["label"].startswith("Glicko, nach 40"))
     return "warning", (f"Ein Neuling mit Abstand {de(C.NEW_GAP, 0)}: Der Glätter liegt am Ende bei {de(w_none, 3)} ohne Prior, **{de(w_one, 3)} mit Prior 1,0** und {de(w_low, 3)} mit zu engem "
-                       f"Prior 0,7; Glicko nach 20 Partien bei {de(g20, 3)}, nach 40 bei {de(g40, 3)}. **Der Rückblick bringt dem Neuling fast nichts**, was nicht auch der Prior bringt.")
+                       f"Prior 0,7; Glicko nach 20 Partien bei {de(g20, 3)}, nach 40 bei {de(g40, 3)}. **Am Ende der Aufzeichnung bringt der Rückblick dem Neuling fast nichts**, was nicht auch der Prior bringt; für die ersten Partien des Neulings bringt er dagegen viel.")
 
 
 def verdict_pause(rows):
@@ -476,6 +476,6 @@ def verdict_pause(rows):
 
 
 def verdict_compare(res):
-    return "info", (f"Auf denselben {res['runs']} Läufen unterscheiden sich WHR und TrueSkill Through Time im Fehler um {de(res['diff_mean'], 3)} ± {de(res['diff_sd'], 3)}; die zentrierten "
+    return "info", (f"Auf denselben {res['runs']} Läufen unterscheiden sich WHR und TrueSkill Through Time im Fehler um {de(res['diff_mean'], 3)} ± {de(res['diff_sd'], 3)} (Streuung über die Läufe); die zentrierten"
                     f"Schätzungen liegen im Mittel {de(res['gap'], 3)} θ-Einheiten ({de(res['gap'] * C.SCALE, 0)} Punkte) auseinander, die Endwertungen stimmen zu Kendall τ = {de(res['tau'], 2)} "
-                    f"überein. Logistisch und Maximum a posteriori gegen Probit und Erwartungsabgleich ({de(res['sweeps'], 0)} Durchläufe): dasselbe Verfahren in zwei Gewändern.")
+                    f"überein. Logistisch und Maximum a posteriori gegen Probit und Erwartungsabgleich ({de(res['sweeps'], 0)} Durchläufe): zwei Rechenwege mit hier praktisch gleichem Fehler.")
