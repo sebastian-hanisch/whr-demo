@@ -332,10 +332,10 @@ Volatilität), wie im Vorgängerstück.
 **Zufall.** Irrfahrt mit Normalverteilung per Box-Muller aus der Gleichverteilten des Generators (SplitMix64); Paarung durch eine Zufallspermutation je Runde.
 
 **Literatur.**
-- Coulom, R. (2008): Whole-History Rating: A Bayesian Rating System for Players of Time-Varying Strength. *Computers and Games*, 113–124 (nicht eingesehen; Verfahren nach der
-  üblichen Darstellung).
+- Coulom, R. (2008): Whole-History Rating: A Bayesian Rating System for Players of Time-Varying Strength. *Computers and Games*, 113–124 (in der Autorenfassung remi.coulom.free.fr/WHR/WHR.pdf eingesehen, im Kopf als „Draft“ gekennzeichnet, nicht die LNCS-Druckfassung: dynamisches
+  Bradley-Terry-Modell mit Wiener-Prozess, Newton-Verfahren je Spieler mit tridiagonaler Hesse-Matrix, Gradient und Hesse-Matrix, Interpolation).
 - Dangauthier, P., Herbrich, R., Minka, T., Graepel, T. (2007): TrueSkill Through Time: Revisiting the History of Chess. *Advances in Neural Information Processing Systems 20*
-  (nicht eingesehen).
+  (im Volltext eingesehen: Modell mit Probit-Leistung und Gaußscher Drift, Vorwärts- und Rückwärtsdurchläufe des Erwartungsabgleichs).
 - Glickman, M. E. (1999): Parameter estimation in large dynamic paired comparison experiments. *Journal of the Royal Statistical Society Series C* 48 (3), 377–394 (Filter Glicko, wie im
   Vorgängerstück).
 - Steele, G. L., Lea, D., Flood, C. H. (2014): Fast splittable pseudorandom number generators. *OOPSLA 2014*, 453–472 (Zufallsstrom des Generators).

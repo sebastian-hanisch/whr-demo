@@ -14,10 +14,19 @@
    - Anhang C (S. 12): Zwischen zwei Zeitpunkten t₁, t₂ ist der Mittelwert des Wiener-Prozesses μ = (μ₁(t₂ − t) + μ₂(t − t₁))/(t₂ − t₁), also linear interpoliert.
 3. Wikipedia „Elo rating system“, https://en.wikipedia.org/wiki/Elo_rating_system, Einleitung: 100 Punkte Vorsprung bedeuten einen erwarteten Anteil von 64 %, 200 Punkte 76 %;
    Bildunterschrift im Abschnitt „Ratings inflation and deflation“: 1800 gegen 1400, Gewinnwahrscheinlichkeit des Stärkeren 0,91 (Stand der Einsicht 2026-10-17; Wikipedia ist Sekundärquelle).
+4. Dangauthier, P., Herbrich, R., Minka, T., Graepel, T. (2007): „TrueSkill Through Time: Revisiting the History of Chess“, NIPS 20,
+   https://www.microsoft.com/en-us/research/wp-content/uploads/2008/01/NIPS2007_0931.pdf, Abschnitt 3.1 (Vanilla TrueSkill, S. 3), am 2026-10-17 im Volltext gelesen:
+   c² = 2β² + σ_W² + σ_L², μ_W ← μ_W + σ_W²/c · v((μ_W − μ_L)/c, ε/c), σ_W² ← σ_W² (1 − σ_W²/c² · w(...)) und entsprechend für den Verlierer (mit − beim Mittel),
+   v(t, ε) = N(t − ε)/Φ(t − ε), w(t, ε) = v (v + t − ε); mit Remis-Marge ε = 0 (die Demo kennt kein Remis).
+   Zusätzlich das Modell (Abschnitt 3.1): Ein Sieg ist das Ereignis „Leistung des Siegers > Leistung des Verlierers“ mit Leistung ~ N(Stärke, β²). Folgerung (nicht Wortlaut der Quelle): Für eine
+   einzelne Partie sind Mittel und Varianzen dieser Aktualisierung die exakten Momente der Posteriori (Leistungsdifferenz normalverteilt, bei 0 abgeschnitten); der Test rechnet sie mit scipy nach.
+
+Anmerkung zu 1: Der Text „The Glicko system“ der Autorenseite ist nicht das Papier in Appl. Statist. 48 (3); das Papier selbst (Volltext glicko.net/research/glicko.pdf, am 2026-10-17 gelesen) enthält
+dieselben Formeln für g, E und die Aktualisierung (Gleichungen (7), (9), (10)), aber weder das Rechenbeispiel noch die Deckelung bei 350.
 
 Nicht eingesehen bzw. nicht verwertbar (kein Test, siehe Bericht „offen“): Zahlenwerte aus Dangauthier et al. (2007), TrueSkill Through Time: Das Papier (NIPS 2007, 8 Seiten, PDF eingesehen) enthält
 nur Ergebnisse auf dem Schachdatensatz (Log-Evidenz, Parameter 480/60), kein kleines nachrechenbares Beispiel; Coulom (2008) nennt Vorhersageraten auf KGS-Daten (Tabelle 1), die ohne die Daten
-nicht reproduzierbar sind.
+nicht reproduzierbar sind (die eingesehene Fassung ist die Autorenfassung mit „Draft“ im Kopf, nicht die LNCS-Druckfassung).
 """
 
 import math
@@ -151,3 +160,45 @@ def test_coulom_appendix_c_mean_is_linear_between_two_times_without_games(t1, t2
         lin = (x[t1] * (t2 - t) + x[t2] * (t - t1)) / (t2 - t1)
         assert x[t] == pytest.approx(lin, abs=1e-4)
     assert np.abs(x[t1] - x[t2]).max() > 0.05                              # die Probe ist nicht trivial (Verlauf nicht konstant)
+
+
+# --- Dangauthier et al. 2007, Abschnitt 3.1 ---------------------------------------------------------------------------------------------------
+
+def _phi_pdf(x):
+    return math.exp(-0.5 * x * x) / math.sqrt(2.0 * math.pi)
+
+
+def _phi_cdf(x):
+    return 0.5 * math.erfc(-x / math.sqrt(2.0))
+
+
+def _paper_vanilla_trueskill(mu_w, var_w, mu_l, var_l, beta, eps=0.0):
+    """Die Gleichungen des Abschnitts 3.1 wörtlich: c² = 2β² + σ_W² + σ_L², v(t, ε) = N(t − ε)/Φ(t − ε), w = v (v + t − ε)."""
+    c2 = 2.0 * beta ** 2 + var_w + var_l
+    c = math.sqrt(c2)
+    t, e = (mu_w - mu_l) / c, eps / c
+    v = _phi_pdf(t - e) / _phi_cdf(t - e)
+    w = v * (v + t - e)
+    return (mu_w + var_w / c * v, var_w * (1.0 - var_w / c2 * w), mu_l - var_l / c * v, var_l * (1.0 - var_l / c2 * w))
+
+
+@pytest.mark.parametrize("mu_w,var_w,mu_l,var_l,beta", [(0.0, 1.0, 0.0, 1.0, 1.0), (0.8, 0.5, -0.3, 1.7, 0.6), (-1.2, 2.0, 1.1, 0.4, 1.2), (2.5, 0.3, 0.1, 0.9, 0.9)])
+def test_dangauthier_vanilla_trueskill_update_equations(mu_w, var_w, mu_l, var_l, beta):
+    got = S.probit_update(np.array([mu_w]), np.array([var_w]), np.array([mu_l]), np.array([var_l]), beta=beta)
+    assert [float(g[0]) for g in got] == pytest.approx(list(_paper_vanilla_trueskill(mu_w, var_w, mu_l, var_l, beta)), rel=1e-12, abs=1e-12)
+
+
+@pytest.mark.parametrize("mu_w,var_w,mu_l,var_l,beta", [(0.0, 1.0, 0.0, 1.0, 1.0), (0.8, 0.5, -0.3, 1.7, 0.6), (-1.2, 2.0, 1.1, 0.4, 1.2)])
+def test_one_game_update_gives_the_exact_posterior_moments_of_the_papers_model(mu_w, var_w, mu_l, var_l, beta):
+    """Leistung p ~ N(Stärke, β²), Sieg = {p_W − p_L > 0}: Die Leistungsdifferenz D ~ N(m, c²) wird bei 0 abgeschnitten; die Stärken sind linear-gaußsch an D gekoppelt (Momente exakt)."""
+    truncnorm = pytest.importorskip("scipy.stats").truncnorm
+    m, c2 = mu_w - mu_l, 2.0 * beta ** 2 + var_w + var_l
+    c = math.sqrt(c2)
+    a = -m / c
+    mean_d = m + c * float(truncnorm.mean(a, math.inf))
+    var_d = c2 * float(truncnorm.var(a, math.inf))
+    got = S.probit_update(np.array([mu_w]), np.array([var_w]), np.array([mu_l]), np.array([var_l]), beta=beta)
+    for mu, var, sign, new_mu, new_var in ((mu_w, var_w, 1.0, got[0][0], got[1][0]), (mu_l, var_l, -1.0, got[2][0], got[3][0])):
+        k = var / c2                                                           # s = µ + sign·k (D − m) + unabhängiges Rauschen der Varianz σ² − k² c²
+        assert new_mu == pytest.approx(mu + sign * k * (mean_d - m), abs=1e-9)
+        assert new_var == pytest.approx(var - k * k * c2 + k * k * var_d, abs=1e-9)

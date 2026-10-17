@@ -101,9 +101,11 @@ Alle Zahlen: 60 feste Läufe, 8 Spieler, Abstand 0,3, 150 Runden, Prior 1,0, wen
 ## Quellen
 
 - Coulom, R. (2008): Whole-History Rating: A Bayesian Rating System for Players of Time-Varying Strength. *Computers and Games* (CG 2008), Lecture Notes in Computer Science 5131,
-  113–124 (Verfahren nach der üblichen Darstellung; das Original wurde nicht eingesehen).
+  113–124 (eingesehen 2026-10-17 in der Autorenfassung remi.coulom.free.fr/WHR/WHR.pdf, im Kopf als „Draft“ gekennzeichnet, nicht in der LNCS-Druckfassung: dynamisches Bradley-Terry-Modell
+  mit Wiener-Prozess (Abschnitt 2), Newton-Verfahren je Spieler mit tridiagonaler Hesse-Matrix (Abschnitt 3.1), Gradient und Hesse-Matrix (Anhang A), Interpolation (Anhang C)).
 - Dangauthier, P., Herbrich, R., Minka, T., Graepel, T. (2007): TrueSkill Through Time: Revisiting the History of Chess. *Advances in Neural Information Processing Systems 20*
-  (das Original wurde nicht eingesehen; die Einzelfaktor-Aktualisierung ist gegen das Paket `trueskill` geprüft).
+  (eingesehen 2026-10-17 im Volltext, microsoft.com/en-us/research, NIPS2007_0931.pdf: Modell mit Probit-Leistung und Gaußscher Drift (Abschnitt 3.1), Vorwärts- und Rückwärtsdurchläufe des
+  Erwartungsabgleichs (Abschnitt 3.2); die Einzelfaktor-Aktualisierung ist gegen das Paket `trueskill` geprüft).
 - Glickman, M. E. (1999): Parameter estimation in large dynamic paired comparison experiments. *Journal of the Royal Statistical Society Series C (Applied Statistics)* 48 (3),
   377–394 (die Filter, wie im Vorgängerstück).
 - Steele, G. L., Lea, D., Flood, C. H. (2014): Fast splittable pseudorandom number generators. *OOPSLA 2014*, 453–472 (Zufallsstrom des Generators).
@@ -145,7 +147,7 @@ Funktionen in `whr_evaluation.py` (Vorschau, Experimente, Verdikte); die Maße d
 
 - **Drift-Annahme aus den Daten schätzen** (Maximum Likelihood in w): eigenes Thema.
 - **Sprünge und Rückkehr zum Mittel** in der Dynamik; **Remis, Tore, Teams** (Stück „Von der Mannschaft zum Einzelnen“).
-- **Dünn besetzte Löser für große Felder** (Coulom rechnet je Spieler und Zeitraum getrennt).
+- **Dünn besetzte Löser für große Felder** (Coulom rechnet je Spieler über dessen ganze Geschichte, die Gegner jeweils fest).
 
 ## Lokal ausführen
 
