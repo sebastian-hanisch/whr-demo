@@ -99,7 +99,7 @@ def run_glicko(m: Matches, c: float, phi0: float) -> Run:
         if m.join_round and t == m.join_round:
             mu[0] = sum(mu[1:]) / (n - 1)
             phi[0] = phi0
-        pre = [inflate(phi[q], c, phi0) if pres[t][q] else phi[q] for q in range(n)]      # Schritt 1 für alle im Feld
+        pre = [inflate(phi[q], c, phi0) for q in range(n)]      # Schritt 1 für alle, auch in der Pause: ohne Partien wächst φ weiter (Glickman)
         opp = {}
         while g < G and gr[g] == t:
             i, j, w = gi[g], gj[g], float(gw[g])

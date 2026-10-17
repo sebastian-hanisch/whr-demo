@@ -64,6 +64,9 @@ Alle Zahlen: 60 feste Läufe, 8 Spieler, Abstand 0,3, 150 Runden, Prior 1,0, wen
 
 ## Befunde und Korrekturen gegenüber dem Plan
 
+- **Korrektur 2026-10-17 (Eigenschaftstest in `glicko-trueskill-demo`, übernommen):** Der Glicko-Filter, der hier als Vergleich läuft, ließ die Unsicherheit φ in der Pause nicht wachsen (Schritt 1 lief nur für
+  Spieler im Feld; nach Glickman wächst φ auch ohne Partien). Behoben, Regressionstest `test_the_filter_lets_the_uncertainty_grow_during_a_pause`. **Alle Zahlen dieser README blieben innerhalb der Toleranz der Claims-Tests unverändert.**
+
 - **Die Vorab-Zahlen verschieben sich um wenige Tausendstel** (WHR 0,190 / 0,244 / 0,356 gegen **0,184 / 0,242 / 0,359**; Gewinn 29 / 26 / 26 % gegen **26 / 26 / 25 %**): 60 statt 30
   Läufe, Prior 1,0 im Glätter, Glicko mit dem informierten Prior 0,7 statt 350 Punkten (0,250 / 0,329 / 0,481 statt 0,277 / 0,341 / 0,481).
 - **Der Neuling im Rückblick bringt nichts:** Der Plan hatte „nur mit passendem Prior etwas“; mit der Vergleichsgröße am Ende (Glicko nach 40 Partien: 0,349) ist selbst der beste
